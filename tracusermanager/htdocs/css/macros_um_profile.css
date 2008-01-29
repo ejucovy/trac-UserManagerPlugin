@@ -1,0 +1,72 @@
+
+DIV.um_profile_macro TABLE{
+	border-collapse:separate;
+}
+
+DIV.um_profile_macro TABLE TD{
+	padding:0px;
+	border-width:0px 1px;
+}
+
+DIV.um_profile_macro TABLE TR{
+	border-width:0px 1px;
+}
+
+DIV.um_profile_macro TABLE TFOOT TH{
+	padding:5px;
+	background-color:#F7F7F0;
+	text-align:right;
+	/*border-color:rgb(215, 215, 215) rgb(215, 215, 215) rgb(153, 153, 153);
+	border-style:solid;
+	border-width:1px;*/
+	font-size:11px;
+	font-weight:bold;
+	padding:2px 0.5em;
+	vertical-align:bottom;
+}
+
+DIV.um_profile_macro span.expander{
+	cursor:pointer;
+	_cursor:hand;
+	background:url(../img/expander_normal.png) no-repeat 0% 50% ;
+	padding-left:16px;
+}
+
+DIV.um_profile_macro span.expander_open{
+	cursor:pointer;
+	_cursor:hand;
+	background:url(../img/expander_open.png) no-repeat 0% 50% ;
+	padding-left:16px;
+}
+
+DIV.um_profile_macro .um_profile{
+	/*display:none;*/
+	background:#F7F7F7 none repeat scroll 0%;
+	padding:10px;
+	text-align:left;	
+}
+
+DIV.um_profile_macro .um_profile .um_profile_picture{
+	float:left;
+	width:100px;
+	min-height:100px;
+	margin:0px 10px 10px 0px;
+	border:1px solid #D7D7D7;
+}
+
+DIV.um_profile_macro .um_profile .um_profile_picture IMG{
+	width:100px;
+	height:auto;
+}
+
+DIV.um_profile_macro .um_profile .um_profile_field{
+	list-style-type:none;
+	margin-bottom:2px;
+	text-align:justify;
+}
+
+DIV.um_profile_macro .um_profile .um_profile_field LABEL {
+	margin:0px 5px;
+	font-weight:bold;	
+	float:left;
+}

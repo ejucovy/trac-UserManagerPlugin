@@ -1,0 +1,35 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/" 
+	  py:strip="">	
+	<div class="um_account">
+		<fieldset>   	 	 
+            <legend>Type</legend>  	 	 
+            <form method="post">
+            	<select name="um_account_type">  	 	 
+                    <option py:for="type in um_account.TYPES" value="${type}" selected="${type==um_account.type and 'selected' or None}">${type=='trac-managed' and _('Managed by Account Manager') or _('Managed by server (default)')}</option>  	 	 
+                </select>  	 	 
+                <input type="submit" name="um_account_update_type" value="Change type"/>  	 	 
+            </form>  	 	 
+		</fieldset> 
+		<fieldset py:if="um_account.type=='trac-managed'">
+			<legend>Change password</legend>
+			<form method="post">
+				<div>
+				<label for="um_account_new_password">New Password:</label>
+				<input type="password" id="um_account_new_password" name="um_account_new_password"/>
+				</div>
+				<div>
+				<label for="um_account_retype_password">Confirm Password:</label>
+				<input type="password" id="um_account_confirm_password" name="um_account_confirm_password"/>
+				</div>
+				<div class="um_account_actions">
+					<input type="submit" name="um_account_change_password" value="Change Password"/>
+				</div>
+			</form>
+		</fieldset>
+	</div>
+</html>

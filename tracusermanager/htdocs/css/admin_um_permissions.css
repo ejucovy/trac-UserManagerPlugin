@@ -1,0 +1,29 @@
+.um_permissions_group{
+	min-width:170px;
+	min-height:170px;
+	margin:3px;
+	padding:3px;
+	float:left;
+	background-color:#f5f5f5;
+}
+
+.um_permissions_group .um_permissions_group_name{
+	font-weight:bold;
+}
+
+.um_permissions_group_groups{
+	clear:both;
+	width:100%;
+	height:auto;
+}
+
+.um_permissions_group label{
+	margin-right:3px;
+}
+
+.um_permissions_actions{
+	text-align:right;
+	padding:5px;	
+	clear:both;
+	border-top:1px solid #C7C7C7
+}

@@ -1,0 +1,191 @@
+/**
+ * Main Layout
+ */
+div#um_panel{
+}
+
+div#um_active_users{
+}
+
+
+/**
+ *	Messages
+ */
+div.um_errors{
+	padding:3px;
+	text-align:center;
+}
+
+div.um_messages{
+	padding:3px;
+	border: 2px solid green;
+	background-color:#66CC99;
+	text-align:center;
+}
+
+
+/**
+ *  Create New User
+ */
+#um_create .field LABEL{
+	display:block;
+}
+
+
+
+/**
+ *	Active User 
+ */
+div#um_active_users TABLE{
+	width:99%;
+	border: 1px solid #DDDDDD;
+	
+}
+div#um_active_users TABLE TD{
+	padding:0px;
+	border-width:0px 1px;
+}
+
+div#um_active_users TABLE TH, div#um_active_users TABLE TR{
+	border-width:0px 1px;
+}
+
+div#um_active_users TABLE TFOOT TH input[type="submit"]{
+	margin-left:135px;
+}
+
+div#um_active_users TABLE TFOOT TH{
+	padding:5px;
+	background-color:#F7F7F0;
+	/*text-align:right;*/
+	font-size:11px;
+	font-weight:bold;
+	padding:2px 0.5em;
+	vertical-align:bottom;
+}
+
+div#um_active_users TABLE TFOOT FIELDSET {
+	background-color:#ffffff;	
+}
+
+div#um_active_users TABLE TFOOT FIELDSET.close{
+	border-width:0pt;
+	background-color:transparent;
+	margin: 5px 0px 0px 0px;
+}
+
+
+div#um_active_users TABLE TFOOT FIELDSET LEGEND{
+	cursor:pointer;
+	_cursor:hand;
+	font-size:12px;
+	color:#bb0000;
+		padding-left:12px;
+}
+
+div#um_active_users TABLE TFOOT TH DIV.field LABEL{
+	display:block;
+	min-width:120px;
+	float:left;
+	margin-right:5px;
+	padding:4px;
+	text-align:right;
+	color:#999999;
+}
+
+div#um_active_users TABLE THEAD TR:first-child th{
+	border-bottom:1px solid #DDDDDD;	
+}
+
+div#um_active_users TABLE TH input[type="submit"]{
+	padding:0px;
+	margin:0px;
+	font-size:8pt;
+}
+div#um_active_users .expander{
+	background:url(../img/expander_normal.png) no-repeat 0% 50% ;
+	padding-left:16px;
+	text-decoration:none;
+	border-width:0px;
+}
+
+div#um_active_users .expander_open{
+	background:url(../img/expander_open.png) no-repeat 0% 50% ;
+	padding-left:16px;
+	text-decoration:none;
+	border-width:0px;
+}
+
+div#um_active_users .um_user_panels{
+	border:1px solid #999999;
+	background:#e7e7e7 none repeat scroll 0%;
+	padding:10px;
+	text-align:left;
+}
+
+div#um_active_users .um_user_panels .um_user_panels_tabs {
+	list-style-image:none;
+	list-style-position:outside;
+	list-style-type:none;
+	margin:0pt;
+	padding:0pt 0pt 1px 1px;
+	border:0px solid ;
+	padding-right:10px;
+}
+
+div#um_active_users .um_user_panels .um_user_panels_tabs:after {
+	clear:both;
+	content:" ";
+	display:block;
+}
+
+div#um_active_users .um_user_panels .um_user_panels_tabs li {
+	float:left;
+	margin:0pt 3px 0pt 0px;
+}
+div#um_active_users .um_user_panels .um_user_panels_tabs a {
+	color:#000000;
+	display:block;
+	padding:2px 9px 1px;
+	position:relative;
+	text-decoration:none;
+	top:1px;
+	z-index:2;
+	background-color:white;
+}
+
+div#um_active_users .um_user_panels .um_user_panels_tabs .on a{
+	border-color:#f7f7f7;
+	border-style:solid ;
+	border-width:1px 1px 0pt 0px;
+	font-weight:bold;
+	background:#F7F7F7 none repeat scroll 0%;
+}
+
+.um_active_users_count{
+	text-align:right;
+	font-weight:bold;
+	font-size:11px;
+	margin-top:10px;	
+}
+
+.um_user_panels_tabs .on a:link, .um_user_panels_tabs .on a:visited {
+	cursor:text;
+}
+
+.um_user_panels_tabs a:hover, .um_user_panels_tabs a:focus, .um_user_panels_tabs a:active {
+	cursor:pointer;
+}
+
+.um_user_panel{
+	padding:5px;
+	background-color:#f7f7f7;
+	clear:both;
+}
+
+.um_user_panel FIELDSET{
+	margin:0px;
+}
+form{
+	margin:0px;
+}
