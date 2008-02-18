@@ -12,6 +12,7 @@ from StringIO import StringIO
 
 from trac.core import *
 from trac.config import *
+from trac.env import IEnvironmentSetupParticipant
 from trac.util.translation import _
 from trac.web.chrome import ITemplateProvider
 
@@ -145,6 +146,8 @@ class UserManager(Component):
                             'SessionAttributeProvider',
         """Name of the component implementing `IAttributeProvider`, which is used
         for storing user attributes""")
+        
+
     
     # Public methods
     def get_user(self, username):
@@ -456,3 +459,29 @@ class SessionAttributeProvider(Component):
             traceback.print_exc(file=out)
             self.log.error('%s: %s\n%s' % (self.__class__.__name__, str(e), out.getvalue()))
             return []
+
+class EnvironmentFixKnownUsers(Component):
+    implements(IEnvironmentSetupParticipant)
+    
+    overwrite_get_known_users = BoolOption('user_manager', 'overwrite_get_known_users', False,
+        """Overwrite `env.get_known_users` to return user_manager's users.""")
+    
+    # IEnvironmentSetupParticipant methods
+    def environment_created(self):
+        pass
+    
+    def environment_needs_upgrade(self, db):
+        if not self.overwrite_get_known_users:
+            return False
+        
+        def inline_overwrite_get_known_users(environment = None, cnx=None):
+            for user in UserManager(self.env).get_active_users():
+                yield (user.username, user['name'], user['email'])
+        
+        self.env.get_known_users = inline_overwrite_get_known_users
+        
+        return False    
+
+    def upgrade_environment(self, db):
+        pass
+
