@@ -88,16 +88,15 @@ class UserManagementAdminPage(Component):
         
         # action handling
         if req.method=="POST" and panel is None:
-            if req.args.has_key("um_newuser_create"):
-                try:
+            try:
+                if req.args.has_key("um_newuser_create"):
                     um_data['messages'].append( self._do_create_user(req) )
-                except Exception, e:
-                    um_data['errors'].append(e)
-            elif req.args.has_key("um_user_delete"):
-                try:
+                elif req.args.has_key("um_user_delete"):
                     um_data['messages'].append( self._do_delete_user(req) )
-                except Exception, e:
-                    um_data['errors'].append(e)
+                elif req.args.has_key('um_import_current_users'):
+                    um_data['messages'].append( self._do_import_current_users(req) )
+            except Exception, e:
+                um_data['errors'].append(e)
      
         if username:
             user = UserManager(self.env).get_user(username)
@@ -129,6 +128,11 @@ class UserManagementAdminPage(Component):
         # adding usernamager's data to the data dict
         data.update(user_manager = um_data)
         
+        # checking for external users
+        trac_managed_users_out = self._do_import_current_users(req, dry_run=True)
+        if len(trac_managed_users_out)>0:
+            um_data['errors'].append(html.form(html.b(_("WARNING: ")),_(" [%s] users are not added to the team.")%(', '.join(trac_managed_users_out)),html.input(type="submit", name="um_import_current_users", value=_("Add Users")), action=req.href.admin('general/user_management'), method="post") )
+
         try:
             from acct_mgr.api import AccountManager
             data.update(account_manager = AccountManager(self.env))
@@ -173,7 +177,28 @@ class UserManagementAdminPage(Component):
         """ """
         if UserManager(self.env).delete_user(req.args.get('um_deleteuser_username')):
             return _("Successfully removed user [%s].")%(req.args.get('um_deleteuser_username'))
-        
+    
+    def _do_import_current_users(self, req, dry_run = False):
+        """ """
+        active_users = [user.username for user in UserManager(self.env).get_active_users()]
+
+        from acct_mgr.api import AccountManager
+        known_users = list( AccountManager(self.env).get_users() )
+                
+        imported_users=[]
+        for username in known_users:
+            if not username in active_users:
+                imported_users.append(username)
+                if not dry_run:
+                    UserManager(self.env).create_user(User(username))
+        if dry_run:
+            return imported_users
+           
+        if len(imported_users)>0:
+            return _("Successfully imported the following users %s.")%(imported_users)
+        else:
+            return _("No users imported.")
+    
     def _get_panels(self, req):
         """Return a list of available admin panels."""
         panels = []
