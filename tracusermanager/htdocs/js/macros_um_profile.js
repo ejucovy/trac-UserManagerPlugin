@@ -1,4 +1,4 @@
-$(document).ready(function(){
+jQuery(document).ready(function($){
 	$(".expander").click(function(){
 		expandedElement = $('#'+this.getAttribute('for'))[0];
 		if(!expandedElement)

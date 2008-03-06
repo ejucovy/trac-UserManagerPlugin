@@ -1,4 +1,4 @@
-$(document).ready(function(){
+jQuery(document).ready(function($){
 	$('div#um_active_users TABLE TFOOT FIELDSET LEGEND').click(function(){
 		if($(this).is(".expander_open")){
 			$(this).removeClass("expander_open");
