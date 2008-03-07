@@ -128,14 +128,14 @@ class UserManagementAdminPage(Component):
         # adding usernamager's data to the data dict
         data.update(user_manager = um_data)
         
-        # checking for external users
-        trac_managed_users_out = self._do_import_current_users(req, dry_run=True)
-        if len(trac_managed_users_out)>0:
-            um_data['errors'].append(html.form(html.b(_("WARNING: ")),_(" [%s] users are not added to the team.")%(', '.join(trac_managed_users_out)),html.input(type="submit", name="um_import_current_users", value=_("Add Users")), action=req.href.admin('general/user_management'), method="post") )
-
         try:
             from acct_mgr.api import AccountManager
             data.update(account_manager = AccountManager(self.env))
+            
+            # checking for external users
+            trac_managed_users_out = self._do_import_current_users(req, dry_run=True)
+            if len(trac_managed_users_out)>0:
+                um_data['errors'].append(html.form(html.b(_("WARNING: ")),_(" [%s] users are not added to the team.")%(', '.join(trac_managed_users_out)),html.input(type="submit", name="um_import_current_users", value=_("Add Users")), action=req.href.admin('general/user_management'), method="post") )
         except Exception, e:
             self.log.error('Account manager not loaded')
         

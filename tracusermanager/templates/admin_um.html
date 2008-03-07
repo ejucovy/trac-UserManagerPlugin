@@ -91,7 +91,7 @@
 								
 							</fieldset>
 						</form>
-						<form name="um_create" action="${panel_href()}" method="post">
+						<form py:if="account_manager" name="um_create" action="${panel_href()}" method="post">
 							<input type="hidden" name="um_newuser_type" value="trac-managed"/>
 							<fieldset class="close">
 								<legend class="expander">Add user managed by Account Manager</legend>
