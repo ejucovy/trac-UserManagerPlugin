@@ -30,7 +30,7 @@
 					</tr>
 				</thead>
 				<tbody>
-				<py:for each="user in users">
+				<py:for each="user in sorted(users, lambda x,y:x.username>y.username and 1 or -1)">
 					<tr id="um_user_${user.username}">
 						<th rowspan="${(user_manager.user and user_manager.user.username==user.username) and '2' or None}"><img src="${href.chrome('tracusermanager')+'/img/user.png'}" /></th>
 						<th rowspan="1" valign="top" align="left" ><a href="${panel_href(user.username, user_manager.default_panel)}#um_user_${user.username}" class="expander${(user_manager.user and user_manager.user.username==user.username) and '_open' or ''}">${user.username}</a></th>
