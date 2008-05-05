@@ -435,23 +435,34 @@ class SessionAttributeProvider(Component):
             if attributes_dict is None:
                 cursor.execute("SELECT sid FROM session_attribute WHERE name='enabled'")
             else:
-                """@note: [TO DO] Redo this query in order to avoid SQL Injection!
-                The following line executes a query that should look like this:
+                """ The following line executes a query that should look like this:
                 
-                    (for dict(name='John%', email='%@exemple.com')):
+                    #for attributes_dict = dict(name='John%', email='%@exemple.com')):
                         SELECT  sid, 
                                 count(sid) cnt 
                         FROM session_attribute 
                         WHERE name='name' AND value like 'John%' 
                            OR name='email' AND value like '%@exemple.com' 
                         GROUP BY sid 
-                        HAVING cnt=2                
+                        HAVING cnt=2           
                 """
+                
+                # dict to list attr_dict = { k1:v1, k2:v2, ... } -> [k1,v1,k2,v2..., len(attr_dict)]
+                attributes_list=[]
+                for k, v in attributes_dict.items():
+                    attributes_list.append(k.startswith('NOT_') and k[4:] or k)
+                    attributes_list.append(v)
+                    
+                attributes_list.append(len(attributes_dict))
+                
                 def _get_condition(k,v):
-                    is_not = k.startswith('NOT_')
-                    return "name='%s' AND value %sLIKE '%s'"%(is_not and k[4:] or k, is_not and 'NOT ' or '', v)
-                cursor.execute("SELECT sid, count(sid) cnt FROM session_attribute WHERE %s GROUP BY sid HAVING cnt=%s"%
-                                 (" OR ".join([ _get_condition(k,v) for k,v in attributes_dict.items()]), len(attributes_dict.items())))
+                    return "name=%s AND value " + (k.startswith('NOT_') and 'NOT' or '') + " LIKE %s"
+                    
+                cursor.execute("SELECT sid, count(sid) cnt"
+                               " FROM session_attribute"
+                               " WHERE " + " OR ".join([ _get_condition(k,v) for k,v in attributes_dict.items()]) +
+                               " GROUP BY sid"
+                               " HAVING cnt=%s", attributes_list)
                 
             return [id for id, cnd in cursor]
         except Exception, e:
