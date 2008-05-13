@@ -1,9 +1,6 @@
 # -*- coding: iso-8859-1 -*-
 #
-# Copyright (C) 2006 Optaros, Inc.
-# All rights reserved.
-#
-# @author: Catalin BALAN <cbalan@optaros.com>
+# Copyright 2008 Optaros, Inc.
 #
 
 from trac.core import *
@@ -20,7 +17,8 @@ class UserProfileModule(Component):
     
     # IPreferencePanelProvider methods
     def get_preference_panels(self, req):
-        yield ('userprofile', _('My Profile'))    
+        if req.session.authenticated:
+            yield ('userprofile', _('My Profile'))    
         
     def render_preference_panel(self, req, panel):
         """"""
@@ -36,7 +34,7 @@ class UserProfileModule(Component):
                     if user.save():
                         data['messages'].append(_("Successfully removed %s's picture.")%(user.username))
                         req.redirect(req.href.prefs('userprofile'))
-            if req.args.has_key("um_profile_update"):
+            else:
                 for field in data['um_profile_fields'].keys():
                     if req.args.has_key("um_profile_%s"%(field)):
                         if data['um_profile_fields'][field]['type']=='file':

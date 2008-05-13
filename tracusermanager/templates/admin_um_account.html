@@ -6,15 +6,6 @@
       xmlns:py="http://genshi.edgewall.org/" 
 	  py:strip="">	
 	<div class="um_account">
-		<fieldset>   	 	 
-            <legend>Type</legend>  	 	 
-            <form method="post">
-            	<select name="um_account_type">  	 	 
-                    <option py:for="type in um_account.TYPES" value="${type}" selected="${type==um_account.type and 'selected' or None}">${type=='trac-managed' and _('Managed by Account Manager') or _('Managed by server (default)')}</option>  	 	 
-                </select>  	 	 
-                <input type="submit" name="um_account_update_type" value="Change type"/>  	 	 
-            </form>  	 	 
-		</fieldset> 
 		<fieldset py:if="um_account.type=='trac-managed'">
 			<legend>Change password</legend>
 			<form method="post">

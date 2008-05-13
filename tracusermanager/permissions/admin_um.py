@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2006 Optaros, Inc.
-# All rights reserved.
-#
-# @author: Catalin BALAN <cbalan@optaros.com>
+# Copyright 2008 Optaros, Inc.
 #
 
 from trac.core import *
 from trac.util.translation import _
 from trac.perm import PermissionSystem
-from trac.web.chrome import add_stylesheet
+from trac.web.chrome import add_stylesheet, add_script
 
 from tracusermanager.admin import IUserManagerPanelProvider
 
@@ -56,6 +53,7 @@ class PermissionUserManagerPanel(Component):
             data['all_user_actions'] = PermissionSystem(self.env).get_user_permissions(user.username)
 
         add_stylesheet(req, 'tracusermanager/css/admin_um_permissions.css')
+        add_script(req, 'tracusermanager/js/admin_um_permissions.js')
         
         return 'admin_um_permissions.html', data
         

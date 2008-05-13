@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2006 Optaros, Inc.
-# All rights reserved.
-#
-# @author: Catalin BALAN <cbalan@optaros.com>
+# Copyright 2008 Optaros, Inc.
 #
 
 from random import Random
@@ -16,11 +13,11 @@ from trac.util.translation import _
 
 from acct_mgr.api import AccountManager
 
-from tracusermanager.admin import IUserManagerPanelProvider, IUserListCellContributor
+from tracusermanager.admin import IUserManagerPanelProvider
 
 class AccountUserManagerPanel(Component):
     
-    implements(IUserManagerPanelProvider, IUserListCellContributor)
+    implements(IUserManagerPanelProvider)
     
     def get_usermanager_admin_panels(self, req):
        return [('account', _('Authentication'))]
@@ -56,11 +53,3 @@ class AccountUserManagerPanel(Component):
         data.update(type=AccountManager(self.env).has_user(user.username) and 'trac-managed' or 'server-managed')
         
         return 'admin_um_account.html',{'um_account':data, 'messages':messages, 'errors':errors}
-    
-    # IUserListCellContributor methods             
-    def get_userlist_cells(self):            
-        yield ('type', _('Authentication'), 3)            
-                    
-    def render_userlist_cell(self, cell_name, user):            
-        """Should render user cell"""            
-        return AccountManager(self.env).has_user(user.username) and 'Account Manager' or ' ' 

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright 2008 Optaros, Inc.
+#
 
 import os.path
 import shutil

@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2006 Optaros, Inc.
-# All rights reserved.
-#
-# @author: Catalin BALAN <cbalan@optaros.com>
+# Copyright 2008 Optaros, Inc.
 #
 
 import os
@@ -66,7 +63,7 @@ class UserManagementAdminPage(Component):
     # IAdminPageProvider methods
     def get_admin_panels(self, req):
         if req.perm.has_permission('TRAC_ADMIN'):
-            yield ('general', _('General'), 'user_management', _('User Management'))
+            yield ('accounts', _('Accounts'), 'users', 'Users')
         
     def render_admin_panel( self, req, cat, page, path_info):
         username = None
@@ -90,7 +87,7 @@ class UserManagementAdminPage(Component):
         if req.method=="POST" and panel is None:
             try:
                 if req.args.has_key("um_newuser_create"):
-                    um_data['messages'].append( self._do_create_user(req) )
+                    um_data['messages'].append( self._do_create_user(req) )                    
                 elif req.args.has_key("um_user_delete"):
                     um_data['messages'].append( self._do_delete_user(req) )
                 elif req.args.has_key('um_import_current_users'):
@@ -127,7 +124,7 @@ class UserManagementAdminPage(Component):
         
         # adding usernamager's data to the data dict
         data.update(user_manager = um_data)
-        
+                
         try:
             from acct_mgr.api import AccountManager
             data.update(account_manager = AccountManager(self.env))
@@ -135,7 +132,8 @@ class UserManagementAdminPage(Component):
             # checking for external users
             trac_managed_users_out = self._do_import_current_users(req, dry_run=True)
             if len(trac_managed_users_out)>0:
-                um_data['errors'].append(html.form(html.b(_("WARNING: ")),_(" [%s] users are not added to the team.")%(', '.join(trac_managed_users_out)),html.input(type="submit", name="um_import_current_users", value=_("Add Users")), action=req.href.admin('general/user_management'), method="post") )
+                um_data['errors'].append(html.form(html.b(_("WARNING: ")),_(" [%s] users are not added to the team.")%(', '.join(trac_managed_users_out)),html.input(type="submit", name="um_import_current_users", value=_("Add Users")), action=req.href.admin('accounts/users'), method="post") )
+        
         except Exception, e:
             self.log.error('Account manager not loaded')
         
@@ -152,10 +150,11 @@ class UserManagementAdminPage(Component):
             raise TracError(_("Username field is mandatory"))
         
         is_trac_managed = req.args.get('um_newuser_type')=='trac-managed'
+        if is_trac_managed and not req.args.get('um_newuser_password'):
+            raise TracError(_('Password field it\'s mandatory'))
+        
         user = User(req.args.get('um_newuser_username').strip())
-        for field in ['name', 'email']+(is_trac_managed and ['password'] or []):
-            if is_trac_managed and not req.args.get('um_newuser_%s'%(field)):
-                raise TracError(_('%s field it\'s mandatory')%(field.capitalize()))
+        for field in ['name', 'email', 'role']+(is_trac_managed and ['password'] or []):
             if field=='password':
                 if req.args.get('um_newuser_password')==req.args.get('um_newuser_confirm_password'):
                     try:
@@ -195,10 +194,10 @@ class UserManagementAdminPage(Component):
             return imported_users
            
         if len(imported_users)>0:
-            return _("Successfully imported the following users %s.")%(imported_users)
+            return _("Successfully imported the following users [%s].")%(','.join(imported_users))
         else:
             return _("No users imported.")
-    
+        
     def _get_panels(self, req):
         """Return a list of available admin panels."""
         panels = []

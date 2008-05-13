@@ -10,17 +10,18 @@
   	</head>
   	<body>
 		<h2>Manage Team</h2>
-		<div class="um_messages" py:if="len(user_manager.errors)==0 and len(user_manager.messages)>0">
-			<div py:for="message in user_manager.messages">${message}</div>
-		</div>
-		<div class="um_errors system-message" py:if="len(user_manager.errors)>0">
-			<div py:for="error in user_manager.errors">${error}</div>
-		</div>
+			<div class="um_messages" py:if="len(user_manager.errors)==0 and len(user_manager.messages)>0 and not user_manager.panel">
+				<div py:for="message in user_manager.messages">${message}</div>
+			</div>
+			<div class="um_errors system-message" py:if="len(user_manager.errors)>0 and  not user_manager.panel">
+				<div py:for="error in user_manager.errors">${error}</div>
+			</div>
+
 		<div id="um_active_users">
-			<table class="listing" cellpading="0" cellspacing="0"  py:with="users=user_manager.users">	
+			<table class="listing" cellpading="0" cellspacing="0" py:for="is_trac_managed, users_iter in groupby([{'is_trac_managed_hack':False}]+sorted(user_manager.users,lambda x,y:account_manager.has_user(x.username)-account_manager.has_user(y.username))+[{'is_trac_managed_hack':True}], lambda nn: nn.is_trac_managed_hack is True or account_manager.has_user(nn.username) )" py:with="users=list(filter(lambda x:not isinstance(x, dict),users_iter))">	
 				<thead>
 					<tr>
-						<th colspan="${len(user_manager.cells)+3}" >Users</th>
+						<th colspan="${len(user_manager.cells)+3}" >${is_trac_managed and _('External users') or _('Users')}</th>
 					</tr>			
 					<tr>
 						<th width="1%" align="left"></th>
@@ -33,7 +34,7 @@
 				<py:for each="user in sorted(users, lambda x,y:x.username>y.username and 1 or -1)">
 					<tr id="um_user_${user.username}">
 						<th rowspan="${(user_manager.user and user_manager.user.username==user.username) and '2' or None}"><img src="${href.chrome('tracusermanager')+'/img/user.png'}" /></th>
-						<th rowspan="1" valign="top" align="left" ><a href="${panel_href(user.username, user_manager.default_panel)}#um_user_${user.username}" class="expander${(user_manager.user and user_manager.user.username==user.username) and '_open' or ''}">${user.username}</a></th>
+						<th rowspan="1" valign="top" align="left" ><a href="${panel_href(user.username, (not is_trac_managed and user_manager.default_panel!='account') and user_manager.default_panel or 'profile')}#um_user_${user.username}" class="expander${(user_manager.user and user_manager.user.username==user.username) and '_open' or ''}">${user.username}</a></th>
 						<th align="left" py:for="cell_dict in sorted(user_manager.cells, lambda x,y:x['order']-y['order'])" title="${cell_dict.label}">${cell_dict.render_method(cell_dict.name, user)}</th>
 						<th align="left" >
 							<form method="POST" action="${panel_href()}">
@@ -45,8 +46,14 @@
 					<tr py:if="user_manager.user and user_manager.user.username==user.username">
 						<td colspan="${len(user_manager.cells)+2}" py:if="user_manager.user and user_manager.user.username==user.username">
 							<div class="um_user_panels" >
+								<div class="um_messages" py:if="len(user_manager.errors)==0 and len(user_manager.messages)>0">
+									<div py:for="message in user_manager.messages">${message}</div>
+								</div>
+								<div class="um_errors system-message" py:if="len(user_manager.errors)>0">
+									<div py:for="error in user_manager.errors">${error}</div>
+								</div>
 								<ul class="um_user_panels_tabs">
-									<li py:for="panel in user_manager.panels" class="${panel[0]==user_manager.panel and 'on' or ''}">
+									<li py:for="panel in filter(lambda p:not (p[0]=='account' and not is_trac_managed) ,user_manager.panels)" class="${panel[0]==user_manager.panel and 'on' or ''}">
 										<a href="${panel_href(user.username,panel[0])}#um_user_${user.username}">${panel[1]}</a>
 									</li>
 								</ul>
@@ -65,13 +72,16 @@
 					</tr>
 				</py:for>
 				<tr py:if="len(users)==0">
-					<td colspan="${len(user_manager.cells)+3}" align="center">No users defined.</td>
+					<td colspan="${len(user_manager.cells)+3}" align="center"> [ ${is_trac_managed and _('No external users defined') or _('No users defined') } ]</td>
 				</tr>	
 			</tbody>
 			<tfoot>
+				<tr py:if="False">
+					<th colspan="${len(user_manager.cells)+3}">.::</th>
+				</tr>
 				<tr>
 					<th colspan="${len(user_manager.cells)+3}">
-						<form name="um_create"  action="${panel_href()}" method="post">
+						<form py:if="not is_trac_managed" name="um_create"  action="${panel_href()}" method="post">
 							<input type="hidden" name="um_newuser_type" value="server-managed"/>
 							<fieldset class="close">
 								<legend class="expander">Add user</legend>
@@ -86,15 +96,18 @@
 									<div class="field" >
 										<label>Email:</label><input type="text" name="um_newuser_email"/>
 									</div>
+									<div class="field" >
+										<label>Role:</label><input type="text" name="um_newuser_role"  />
+									</div>
 									<input type="submit" name="um_newuser_create" value="Add user"/>
 								</div>
 								
 							</fieldset>
 						</form>
-						<form py:if="account_manager" name="um_create" action="${panel_href()}" method="post">
+						<form py:if="is_trac_managed" name="um_create" action="${panel_href()}" method="post">
 							<input type="hidden" name="um_newuser_type" value="trac-managed"/>
 							<fieldset class="close">
-								<legend class="expander">Add user managed by Account Manager</legend>
+								<legend class="expander">Add external user</legend>
 								<div class="field-wrapper" style="display:none">
 									<div class="field" >
 										<label>Username:</label><input type="text" name="um_newuser_username"  />
@@ -106,15 +119,18 @@
 										<label>Email:</label><input type="text" name="um_newuser_email"/>
 									</div>
 									<div class="field" >
+										<label>Role:</label><input type="text" name="um_newuser_role"  />
+									</div>
+									<div class="field" >
 										<label>Password:</label><input type="password" name="um_newuser_password"  />
 									</div>
 									<div class="field" >
 										<label>Confirm password:</label><input type="password" name="um_newuser_confirm_password" />
 									</div>
-									<input type="submit" name="um_newuser_create" value="Add user managed by Account Manager"/>
+									<input type="submit" name="um_newuser_create" value="Add external user"/>
 								</div>
 							</fieldset>
-						</form>					
+						</form>	
 					</th>
 				</tr>
 			</tfoot>

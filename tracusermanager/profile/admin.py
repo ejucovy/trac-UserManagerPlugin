@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2006 Optaros, Inc.
-# All rights reserved.
-#
-# @author: Catalin BALAN <cbalan@optaros.com>
+# Copyright 2008 Optaros, Inc.
 #
 
 from trac.admin.api import IAdminPanelProvider
@@ -22,14 +19,12 @@ class UserProfileFieldsAdminPage(Component):
     # IAdminPanelProvider methods
     def get_admin_panels(self, req):
         if req.perm.has_permission('TRAC_ADMIN'):
-            yield ('general', _('General'), 'um_profile_fields', _('User Profile Fields'))
+            yield ('accounts', _('Accounts'), 'xum_profile_fields', _('User Profile Fields'))
 
     def render_admin_panel(self, req, cat, page, path_info):
         #assert req.perm.has_permission('TRAC_ADMIN')
         #req.perm.assert_permission('TRAC_ADMIN')
         
-        #add_script(req, 'customfieldadmin/js/CustomFieldAdminPage_actions.js')
-
         def _field_from_req(self, req):
             cfdict = {'name': to_unicode(req.args.get('name')),
                       'label': to_unicode(req.args.get('label')),

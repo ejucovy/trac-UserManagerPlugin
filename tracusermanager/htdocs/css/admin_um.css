@@ -123,6 +123,14 @@ div#um_active_users .um_user_panels{
 	text-align:left;
 }
 
+div#um_active_users .um_user_panels div.um_messages{
+	margin-bottom:5px;	
+}
+
+div#um_active_users .um_user_panels div.um_errors{
+	margin-bottom:5px;	
+}
+
 div#um_active_users .um_user_panels .um_user_panels_tabs {
 	list-style-image:none;
 	list-style-position:outside;

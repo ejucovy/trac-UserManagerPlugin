@@ -1,10 +1,7 @@
 # -*- coding: iso-8859-1 -*-
 #
-# Copyright (C) 2006 Optaros, Inc.
-# All rights reserved.
+# Copyright 2008 Optaros, Inc.
 #
-# @author: Catalin BALAN <cbalan@optaros.com>
-# 
 
 import traceback 
 import time
@@ -146,8 +143,6 @@ class UserManager(Component):
                             'SessionAttributeProvider',
         """Name of the component implementing `IAttributeProvider`, which is used
         for storing user attributes""")
-        
-
     
     # Public methods
     def get_user(self, username):
@@ -392,7 +387,7 @@ class SessionAttributeProvider(Component):
             traceback.print_exc(file=out)
             self.log.error('%s: %s\n%s' % (self.__class__.__name__, str(e), out.getvalue()))
             raise TracError("Unable to set attribute %s for user [%s]."%(attribute, username))
-        
+    
         return False
     
     def delete_user_attribute(self, username, attribute):
@@ -474,20 +469,20 @@ class SessionAttributeProvider(Component):
 class EnvironmentFixKnownUsers(Component):
     implements(IEnvironmentSetupParticipant)
     
-    overwrite_get_known_users = BoolOption('user_manager', 'overwrite_get_known_users', False,
-        """Overwrite `env.get_known_users` to return user_manager's users.""")
-    
     # IEnvironmentSetupParticipant methods
     def environment_created(self):
         pass
     
     def environment_needs_upgrade(self, db):
-        if not self.overwrite_get_known_users:
-            return False
-        
         def inline_overwrite_get_known_users(environment = None, cnx=None):
-            for user in UserManager(self.env).get_active_users():
-                yield (user.username, user['name'], user['email'])
+            users = UserManager(self.env).get_active_users()
+            if len(users)>0:
+                for user in users:
+                    yield (user.username, user['name'], user['email'])
+            else:
+                # No users defined, so we're returning the original list
+                for user, name, email in  self.env.__class__.get_known_users(self.env):
+                    yield (user, name, email)
         
         self.env.get_known_users = inline_overwrite_get_known_users
         
@@ -495,4 +490,3 @@ class EnvironmentFixKnownUsers(Component):
 
     def upgrade_environment(self, db):
         pass
-

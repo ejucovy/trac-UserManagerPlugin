@@ -1,19 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
+#
+# Copyright 2007-2008 Optaros, Inc
+#
 
 from setuptools import setup
 
-setup(name='TracUserManagerPlugin',
-      version='0.2',
+setup(name="TracUserManagerPlugin",
+      version="0.3",
       packages=['tracusermanager', 
                 'tracusermanager.account', 
                 'tracusermanager.permissions',
                 'tracusermanager.profile'],
       author="Catalin Balan", 
       author_email="cbalan@optaros.com", 
-      url='http://www.optaros.com/',
-      description='Trac User Manager',
-      license='BSD',
+      url="http://code.optaros.com/trac/oforge",
+      description="Trac User Manager",
+      license="BSD",
       entry_points={'trac.plugins': [
             'tracusermanager.api = tracusermanager.api',
             'tracusermanager.admin = tracusermanager.admin',

@@ -9,7 +9,6 @@
    		<title>${_('My Profile')}</title>
 	</head>
 	<body>
-		<form method="POST" enctype="multipart/form-data" py:match="div[@id='tabcontent']/form">	
 			<div py:choose="" class="um_profile_picture">
 				<img py:when="user.picture_href" src="$user.picture_href"/>
 				<img py:otherwise="" src="${href.chrome('tracusermanager')}/img/no_picture.png"/>
@@ -54,9 +53,10 @@
 					</py:otherwise>
 				</div>
 			</div>
-			<div class="um_profile_actions">
-				<input type="submit" name="um_profile_update" value="Update Profile"/>
-			</div>
-		</form>
+<script type="text/javascript">
+jQuery(document).ready(function ($) {
+  $("#tabcontent form")[0].enctype="multipart/form-data";
+});
+</script>
 	</body>
 </html>

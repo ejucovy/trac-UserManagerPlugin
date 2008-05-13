@@ -9,7 +9,7 @@
 		<fieldset>
 			<legend>Advanced Permissions</legend>
 			<form method="POST">
-				<div py:for="group, group_actions in groupby(sorted(actions), lambda a: '_' in a and a[:a.index('_')] or a.islower() and '99_group_hack' or a) "  class="um_permissions_group ${group=='99_group_hack' and 'um_permissions_group_groups' or ''}">
+				<div py:for="group, group_actions in groupby(sorted(actions), lambda a: '_' in a and a[:a.index('_')] or not a.isupper() and '99_group_hack' or a) "  class="um_permissions_group ${group=='99_group_hack' and 'um_permissions_group_groups' or ''}">
 					<div class="um_permissions_group_name">${group=='99_group_hack' and 'Groups' or group.capitalize()}</div>
 					<div py:for="action in group_actions"  py:if="not action in ('anonymous', 'authenticated', user_manager.user.username)">
 						<label><input type="checkbox" name="um_permission" id="um_perrmission" value="${action}" disabled="${(not user_actions.has_key(action) and all_user_actions.has_key(action)) and 'disabled' or None}" checked="${ (all_user_actions.has_key(action) or user_actions.has_key(action) )  and 'checked' or  None}"/>
