@@ -18,7 +18,7 @@
 			</div>
 
 		<div id="um_active_users">
-			<table class="listing" cellpading="0" cellspacing="0" py:for="is_trac_managed, users_iter in groupby([{'is_trac_managed_hack':False}]+sorted(user_manager.users,lambda x,y:account_manager.has_user(x.username)-account_manager.has_user(y.username))+[{'is_trac_managed_hack':True}], lambda nn: nn.is_trac_managed_hack is True or account_manager.has_user(nn.username) )" py:with="users=list(filter(lambda x:not isinstance(x, dict),users_iter))">	
+			<table class="listing" cellpading="0" cellspacing="0" py:for="is_trac_managed, users_iter in groupby([{'is_trac_managed_hack':False}]+sorted(user_manager.users,lambda x,y:account_manager and (account_manager.has_user(x.username)-account_manager.has_user(y.username)) or 1 )+(account_manager and [{'is_trac_managed_hack':True}] or []), lambda nn: nn.is_trac_managed_hack is True or (account_manager and account_manager.has_user(nn.username) or False) )" py:with="users=list(filter(lambda x:not isinstance(x, dict),users_iter))">	
 				<thead>
 					<tr>
 						<th colspan="${len(user_manager.cells)+3}" >${is_trac_managed and _('External users') or _('Users')}</th>
