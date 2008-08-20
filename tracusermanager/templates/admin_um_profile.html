@@ -39,10 +39,10 @@
 						<label for="um_profile_${field}">${attributes.label}:</label>
 						<textarea name="um_profile_${field}" id="um_profile_${field}" cols="${attributes.cols}" rows="${attributes.rows}">${user_manager.user[field]}</textarea>
 					</py:when>
-					<py:when test="attributes.type=='multichecks'">
+					<py:when test="attributes.type=='multichecks'" py:with="user_checked_values = user_manager.user[field] and user_manager.user[field].split('|') or []">
 						<label >${attributes.label}:</label>
 						<span py:for="option in attributes['options']" for="um_profile_${field}_${option}">
-							<input type="checkbox" name="um_profile_${field}" id="um_profile_${field}_${option}" checked="${option in str(user_manager.user[field]) and 'cheched' or None}"  value="${option}"/>
+							<input type="checkbox" name="um_profile_${field}" id="um_profile_${field}_${option}" checked="${option in user_checked_values and 'cheched' or None}"  value="${option}"/>
 							${option}
 						</span>
 					</py:when>
