@@ -43,7 +43,7 @@
 						<label >${attributes.label}:</label>
 						<span py:for="option in attributes['options']" for="um_profile_${field}_${option}">
 							<input type="checkbox" name="um_profile_${field}" id="um_profile_${field}_${option}" checked="${option in str(user_manager.user[field]) and 'cheched' or None}"  value="${option}"/>
-							${option.capitalize()}
+							${option}
 						</span>
 					</py:when>
 					<py:otherwise>
