@@ -4,7 +4,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
- 	<xi:include href="prefs.html" />
+ 	
+	<py:match path="form[@id='userprefs']" once="True">
+        <form py:attrs="select('@*')" enctype="multipart/form-data">${select("*|text()")}</form>
+    </py:match>
+	
+	<xi:include href="prefs.html" />
  	<head>
    		<title>${_('My Profile')}</title>
 	</head>
@@ -53,10 +58,5 @@
 					</py:otherwise>
 				</div>
 			</div>
-<script type="text/javascript">
-jQuery(document).ready(function ($) {
-  $("#tabcontent form")[0].enctype="multipart/form-data";
-});
-</script>
 	</body>
 </html>
