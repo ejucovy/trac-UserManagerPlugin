@@ -34,31 +34,32 @@ class UserProfileModule(Component):
                     if user.save():
                         data['messages'].append(_("Successfully removed %s's picture.")%(user.username))
                         req.redirect(req.href.prefs('userprofile'))
-            else:
-                for field in data['um_profile_fields'].keys():
-                    if req.args.has_key("um_profile_%s"%(field)):
-                        if data['um_profile_fields'][field]['type']=='file':
-                            user_file_new = UserProfileManager(self.env).get_uploaded_file_href(req, user, field, "um_profile_%s"%(field))
-                            user_file_old = user[field]
-                            if user_file_new!=user_file_old:
-                                user[field] = user_file_new
-                                if user_file_old:
-                                    try:
-                                        UserProfileManager(self.env).remove_user_file(user_file_old)
-                                    except Exception, e:
-                                        self.log.error(e)
-                                        data['errors'].append(_("Unable to remove previous %s=[%s]")%(field, user_file_old))
-                        elif data['um_profile_fields'][field]['type']=='multichecks':
-                            user[field] = '|'.join(req.args.getlist("um_profile_%s"%(field)))
-                        else:
-                            user[field] = req.args.get("um_profile_%s"%(field))
+                        return 
+            
+            for field in data['um_profile_fields'].keys():
+                if req.args.has_key("um_profile_%s"%(field)):
+                    if data['um_profile_fields'][field]['type']=='file':
+                        user_file_new = UserProfileManager(self.env).get_uploaded_file_href(req, user, field, "um_profile_%s"%(field))
+                        user_file_old = user[field]
+                        if user_file_new!=user_file_old:
+                            user[field] = user_file_new
+                            if user_file_old:
+                                try:
+                                    UserProfileManager(self.env).remove_user_file(user_file_old)
+                                except Exception, e:
+                                    self.log.error(e)
+                                    data['errors'].append(_("Unable to remove previous %s=[%s]")%(field, user_file_old))
                     elif data['um_profile_fields'][field]['type']=='multichecks':
-                        # cleanup if none selected
-                        user[field]=''
+                        user[field] = '|'.join(req.args.getlist("um_profile_%s"%(field)))
+                    else:
+                        user[field] = req.args.get("um_profile_%s"%(field))
+                elif data['um_profile_fields'][field]['type']=='multichecks':
+                    # cleanup if none selected
+                    user[field]=''
 
-                if user.save():
-                    data['messages'].append(_("Successfully updated profile for user [%s].")%(user.username))
-                    req.redirect(req.href.prefs('userprofile'))
+            if user.save():
+                data['messages'].append(_("Successfully updated profile for user [%s].")%(user.username))
+                req.redirect(req.href.prefs('userprofile'))
                 
         add_stylesheet(req, 'tracusermanager/css/prefs_um_profile.css')
         

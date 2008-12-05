@@ -9,9 +9,10 @@ from StringIO import StringIO
 from trac.core import *
 from trac.config import *
 from trac.admin.api import IAdminPanelProvider
-from trac.web.chrome import add_stylesheet, add_script
+from trac.web.chrome import add_stylesheet, add_script, add_notice, add_warning
 from trac.util import get_reporter_id
 from trac.util.html import html
+from trac.util.datefmt import format_datetime
 from trac.util.translation import _
 
 from tracusermanager.api import UserManager, User
@@ -84,6 +85,9 @@ class UserManagementAdminPage(Component):
                 panel_path_info = path_info_list[2:]
         
         # action handling
+        if req.args.has_key('um_session_management') and panel is None:
+            return self._do_session_management(req, cat, page, path_info)
+        
         if req.method=="POST" and panel is None:
             try:
                 if req.args.has_key("um_newuser_create"):
@@ -124,17 +128,17 @@ class UserManagementAdminPage(Component):
         
         # adding usernamager's data to the data dict
         data.update(user_manager = um_data)
-                
+        
+        # checking for external users
+        trac_managed_users_out = self._do_import_current_users(req, dry_run=True)
+        if len(trac_managed_users_out)>0:
+            um_data['errors'].append(html.form(html.b(_("WARNING: ")),_(" [%s] users are not added to the team.")%(', '.join(trac_managed_users_out)),html.input(type="submit", name="um_import_current_users", value=_("Add Users")), action=req.href.admin('accounts/users'), method="post") )
+        
         try:
             from acct_mgr.api import AccountManager
             data.update(account_manager = AccountManager(self.env))
-            
-            # checking for external users
-            trac_managed_users_out = self._do_import_current_users(req, dry_run=True)
-            if len(trac_managed_users_out)>0:
-                um_data['errors'].append(html.form(html.b(_("WARNING: ")),_(" [%s] users are not added to the team.")%(', '.join(trac_managed_users_out)),html.input(type="submit", name="um_import_current_users", value=_("Add Users")), action=req.href.admin('accounts/users'), method="post") )
-        
         except Exception, e:
+            data.update(account_manager = {'has_user':lambda x: False})
             self.log.error('Account manager not loaded')
         
         # adding stylesheets
@@ -180,9 +184,11 @@ class UserManagementAdminPage(Component):
     def _do_import_current_users(self, req, dry_run = False):
         """ """
         active_users = [user.username for user in UserManager(self.env).get_active_users()]
-
-        from acct_mgr.api import AccountManager
-        known_users = list( AccountManager(self.env).get_users() )
+        try:
+            from acct_mgr.api import AccountManager
+            known_users = list( AccountManager(self.env).get_users() )
+        except:
+            return []
                 
         imported_users=[]
         for username in known_users:
@@ -197,6 +203,46 @@ class UserManagementAdminPage(Component):
             return _("Successfully imported the following users [%s].")%(','.join(imported_users))
         else:
             return _("No users imported.")
+    
+    def _do_session_management(self, req, cat, panel, path_info):
+        if req.method=="POST" and req.args.has_key("um_session_delete_selected"):
+            sel = req.args.getlist('sel')
+            if len(sel)>0:
+                db = self.env.get_db_cnx()
+                cursor = db.cursor()
+                try:
+                    cursor.executemany("DELETE FROM session_attribute WHERE sid=%s", [(sid,) for sid in sel])
+                    cursor.executemany("DELETE FROM session WHERE sid=%s", [(sid,) for sid in sel])
+                    db.commit()
+                except Exception, e:
+                    db.rollback()
+                    self.log(e)
+                    raise TracError("Unable to delete selected users. [%s]"%(e))
+                add_notice(req, "Succesfully removed [%s] sessions."%(",".join(sel)))
+            else:
+                add_warning(req, "No session ids selected")
+                
+                
+        team = [user.username for user in UserManager(self.env).get_active_users()]
+        sessions={}
+        for username, name, email in self.env.__class__.get_known_users(self.env):
+            sessions[username]=dict(username = username,
+                                    name=name,
+                                    email=email, in_team=username in team)
+        db = self.env.get_db_cnx()
+        cursor = db.cursor()
+        cursor.execute("SELECT sid,last_visit "
+                       "FROM session "
+                       "WHERE authenticated=1")
+        
+        for username, last_visit in cursor:
+            if sessions.has_key(username) and last_visit:
+                sessions[username]['last_visit'] = format_datetime(last_visit)
+        
+        data = dict(sessions=sorted(sessions.itervalues(), 
+                                    key=lambda session: session['username']))
+        
+        return "admin_session_management.html", data
         
     def _get_panels(self, req):
         """Return a list of available admin panels."""

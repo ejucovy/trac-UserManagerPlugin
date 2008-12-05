@@ -80,8 +80,11 @@ class UserProfilesListMacro(WikiMacroBase):
         add_script(formatter.req,'tracusermanager/js/macros_um_profile.js')
         
         # render template
-        rendered_result = Chrome(self.env).render_template(formatter.req, 'macro_um_profile.html', {'users':data}, fragment=True)
-            
+        template = Chrome(self.env).load_template('macro_um_profile.html',method='xhtml')
+        data = Chrome(self.env).populate_data(formatter.req, {'users':data})
+
+        rendered_result = template.generate(**data)
+
         # wrap everything 
         if len(layout_args)>0:
             rendered_result= html.div(rendered_result, **layout_args)

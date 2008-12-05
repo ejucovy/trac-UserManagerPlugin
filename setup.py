@@ -7,7 +7,7 @@
 from setuptools import setup
 
 setup(name="TracUserManagerPlugin",
-      version="0.3",
+      version="0.4",
       packages=['tracusermanager', 
                 'tracusermanager.account', 
                 'tracusermanager.permissions',

@@ -1,21 +1,19 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:py="http://genshi.edgewall.org/"
-      py:strip="">
+<html xmlns:py="http://genshi.edgewall.org/" py:strip="">
     <div class="um_profile_macro">
-		<table class="listing" cellpading="0" cellspacing="0">	
+		<table class="listing">
 			<thead>
 				<tr>
-					<th width="1%" align="left"></th>
-					<th align="left">User</th>
-					<th align="left" py:for="cell_dict in sorted(users.cells, lambda x,y:x['order']-y['order'])">${cell_dict.label}</th>
-				</tr>		
+					<th width="1%"></th>
+					<th>User</th>
+					<th py:for="cell_dict in sorted(users.cells, lambda x,y:x['order']-y['order'])">${cell_dict.label}</th>
+				</tr>
 			</thead>
 			<tbody>
 			<py:for each="user in sorted(users.user_profiles, lambda x,y:x.username>y.username and 1 or -1)">
 				<tr>
 					<th rowspan="2"><img src="${href.chrome('tracusermanager')+'/img/user.png'}" /></th>
-					<th rowspan="1" valign="top" align="left"><span class="expander" for="um_profile_${user.username}" title="Expand Profile">${user.username}</span></th>
-					<th align="left" py:for="cell_dict in sorted(users.cells, lambda x,y:x['order']-y['order'])" title="${cell_dict.label}">${cell_dict.render_method(cell_dict.name, user)}</th>
+					<th><span class="expander" for="um_profile_${user.username}" title="Expand Profile">${user.username}</span></th>
+					<th py:for="cell_dict in sorted(users.cells, lambda x,y:x['order']-y['order'])" title="${cell_dict.label}">${cell_dict.render_method(cell_dict.name, user)}</th>
 
 				</tr>
 				<tr>
@@ -27,7 +25,7 @@
 							</div>
 							<div class="um_profile_field" py:for="field, attributes in sorted(users.user_profile_fields.items(), lambda x,y:x[1]['order']-y[1]['order'])">
 								<label>${attributes.label}:</label>
-								<py:choose>									
+								<py:choose>	
 									<span py:when="attributes.type=='wikitext'">${users.wiki_to_html(user[field])}</span>
 									<span py:when="attributes.type=='multichecks'">${user[field] and str(user[field]).replace('|',',') or _('[Blank]')}</span>
 									<span py:otherwise="">${user[field] or _('[Blank]')}</span>
@@ -39,7 +37,7 @@
 			</py:for>
 			<tr py:if="len(users.user_profiles)==0">
 				<td colspan="${len(users.cells)+2}" align="center">( Empty )</td>
-			</tr>	
+			</tr>
 		</tbody>
 		<tfoot>
 			<tr>
