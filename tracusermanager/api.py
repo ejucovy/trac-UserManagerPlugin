@@ -18,6 +18,13 @@ from trac.env import IEnvironmentSetupParticipant
 from trac.util.translation import _
 from trac.web.chrome import ITemplateProvider
 
+class IUserAttributeChangeListener(Interface):
+
+    def user_attribute_changed(username, attribute, old_value, new_value): 
+        """
+        Called when a user attribute changes.
+        """
+
 class User(object):
     """Object representing a user"""
     
@@ -148,6 +155,8 @@ class UserManager(Component):
                             'SessionAttributeProvider',
         """Name of the component implementing `IAttributeProvider`, which is used
         for storing user attributes""")
+
+    change_listeners = ExtensionPoint(IUserAttributeChangeListener)
     
     # Public methods
     def get_user(self, username):
@@ -233,9 +242,17 @@ class UserManager(Component):
         return self.attribute_provider.get_user_attribute(username, attribute)
 
     def set_user_attribute(self, username, attribute, value):
-        return self.attribute_provider.set_user_attribute(username, attribute, value)
-    
+        oldval = self.attribute_provider.get_user_attribute(username, attribute)
+        retval = self.attribute_provider.set_user_attribute(username, attribute, value)
+        for listener in self.change_listeners:
+            listener.user_attribute_changed(username, attribute, oldval, value)
+        return retval
+
     def delete_user_attribute(self, username, attribute):
+        oldval = self.attribute_provider.get_user_attribute(username, attribute)
+        retval = self.attribute_provider.delete_user_attribute(username, attribute)
+        for listener in self.change_listeners:
+            listener.user_attribute_changed(username, attribute, oldval, None)
         return self.attribute_provider.delete_user_attribute(username, attribute)
     
     def get_usernames_with_attributes(self, attribute_dict):
@@ -263,20 +280,19 @@ class SessionUserStore(Component):
         return True
     
     def create_user(self, username):
-        
-        
         db = self.env.get_db_cnx()
+       
         cursor = db.cursor()
-        
         try:
             cursor.execute("INSERT INTO session (sid, last_visit, authenticated)"
                            " VALUES(%s,%s,1)", [username, int(time.time())])
+            db.commit()
         except Exception, e:
+            db.rollback()
             self.log.debug("Session for %s exists, no need to re-create it."%(username))
             
-        try:    
-            
-        
+        cursor = db.cursor()
+        try:
             # clean up 
             cursor.execute("DELETE "
                                "FROM session_attribute "
@@ -292,6 +308,7 @@ class SessionUserStore(Component):
             return True
         
         except Exception, e:
+            db.rollback()
             out = StringIO()
             traceback.print_exc(file=out)
             self.log.error('%s: %s\n%s' % (self.__class__.__name__, str(e), out.getvalue()))
@@ -320,7 +337,7 @@ class SessionUserStore(Component):
             out = StringIO()
             traceback.print_exc(file=out)
             self.log.error('%s: %s\n%s' % (self.__class__.__name__, str(e), out.getvalue()))
-            raise TracError(_("Unable to create user [%s].")%(user.username))
+            raise TracError(_("Unable to find username from pattern [%s].")%(username_pattern))
         
         return search_result
             
@@ -438,13 +455,12 @@ class SessionAttributeProvider(Component):
                 """ The following line executes a query that should look like this:
                 
                     #for attributes_dict = dict(name='John%', email='%@exemple.com')):
-                        SELECT  sid, 
-                                count(sid) cnt 
+                        SELECT  sid
                         FROM session_attribute 
                         WHERE name='name' AND value like 'John%' 
                            OR name='email' AND value like '%@exemple.com' 
                         GROUP BY sid 
-                        HAVING cnt=2           
+                        HAVING count(*)=2           
                 """
                 
                 # dict to list attr_dict = { k1:v1, k2:v2, ... } -> [k1,v1,k2,v2..., len(attr_dict)]
@@ -458,13 +474,12 @@ class SessionAttributeProvider(Component):
                 def _get_condition(k,v):
                     return "name=%s AND value " + (k.startswith('NOT_') and 'NOT' or '') + " LIKE %s"
                     
-                cursor.execute("SELECT sid, count(sid) cnt"
+                cursor.execute("SELECT sid"
                                " FROM session_attribute"
                                " WHERE " + " OR ".join([ _get_condition(k,v) for k,v in attributes_dict.items()]) +
                                " GROUP BY sid"
-                               " HAVING cnt=%s", attributes_list)
-                
-            return [id for id, cnd in cursor]
+                               " HAVING count(*)=%s", attributes_list)
+            return [id for id, in cursor]
         except Exception, e:
             out = StringIO()
             traceback.print_exc(file=out)
