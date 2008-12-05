@@ -1,0 +1,43 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/" >
+    <xi:include href="admin.html" />
+    <head>
+        <title>Session Management</title>
+    </head>
+    <body>
+        <h2>Session Management</h2>
+        <div id="um_session">
+            <form method="POST">
+	            <input type="hidden" name="um_session_management" value="1"/>
+				<table class="listing" cellpading="0" cellspacing="0" >    
+	                <thead>
+	                	<tr>
+	                		<th></th>
+	                		<th>Username</th>
+							<th>Name</th>
+							<th>Email</th>
+							<th>Team member</th>
+							<th>Last visit</th>
+	                	</tr>
+	                </thead>
+	                <tbody>
+	                	<tr py:for="session in sessions">
+	                		<td><input type="checkbox" name="sel" value="${session.username}"/></td>
+							<td>${session.username}</td>
+							<td>${session.name}</td>
+							<td>${session.email}</td>
+							<td>${session.in_team and 'Team member' or ''}</td>
+							<td>${session.last_visit}</td>
+							
+	                	</tr>
+	                </tbody>            
+	            </table>
+				<div class="buttons"><input type="submit" name="um_session_delete_selected" value="Delete Selected" /></div>
+			</form>
+        </div>
+    </body>
+</html>
