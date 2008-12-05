@@ -2,6 +2,11 @@
 #
 # Copyright 2008 Optaros, Inc.
 #
+try:
+    import threading
+except ImportError:
+    import dummy_threading as threading
+import time
 
 import traceback 
 import time
@@ -465,6 +470,48 @@ class SessionAttributeProvider(Component):
             traceback.print_exc(file=out)
             self.log.error('%s: %s\n%s' % (self.__class__.__name__, str(e), out.getvalue()))
             return []
+
+class CachedSessionAttributeProvider(SessionAttributeProvider):
+    CACHE_UPDATE_INTERVAL = 50
+    
+    def __init__(self):
+        self._attribute_cache = {}
+        self._attribute_cache_last_update = {}
+        self._attribute_cache_lock = threading.RLock()
+
+    def _update_cache(self, username, force=False):
+        self._attribute_cache_lock.acquire()
+        try:
+            now = time.time()
+            if now > self._attribute_cache_last_update.get(username,0) + CachedSessionAttributeProvider.CACHE_UPDATE_INTERVAL \
+                    or not self._attribute_cache.has_key(username) \
+                    or force:
+                db = self.env.get_db_cnx()
+                cursor = db.cursor()
+                cursor.execute("SELECT name, value FROM session_attribute WHERE sid=%s",(username,))
+                self._attribute_cache[username] = {}
+                for name,value in cursor:
+                    self._attribute_cache[username][name] = value
+                self._attribute_cache_last_update[username] = now
+                self.log.debug("Updating SessionAttributeProvider attribute cache for user <%s>"%(username,))
+        finally:
+            self._attribute_cache_lock.release()
+    
+    def get_user_attribute(self, username, attribute):
+        self._update_cache(username)
+        if username in self._attribute_cache:
+            return self._attribute_cache[username].get(attribute)
+        return None
+    
+    def set_user_attribute(self, username, attribute, value):
+        return_value = super(CachedSessionAttributeProvider, self).set_user_attribute(username, attribute, value)
+        self._update_cache(username, force=True)
+        return return_value
+        
+    def delete_user_attribute(self, username, attribute):
+        return_value = super(CachedSessionAttributeProvider, self).delete_user_attribute(username, attribute)
+        self._update_cache(username, force=True)
+        return return_value
 
 class EnvironmentFixKnownUsers(Component):
     implements(IEnvironmentSetupParticipant)
