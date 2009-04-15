@@ -249,6 +249,7 @@ class UserProfileManager(Component):
         attachment = Attachment(self.env, 'wiki', self.attachments_wikiPage)
         attachment.author = get_reporter_id(req, 'author')
         attachment.ipnr = req.remote_addr
+        attachment.description = (_("%s\'s Avatar") % (user.username))
         attachment.insert('_'.join([user.username, filename]), upload.file, size)
         
         return req.href('/'.join(['raw-attachment', 'wiki',self.attachments_wikiPage, attachment.filename]))
