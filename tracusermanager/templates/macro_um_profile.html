@@ -13,7 +13,16 @@
 				<tr>
 					<th rowspan="2"><img src="${href.chrome('tracusermanager')+'/img/user.png'}" /></th>
 					<th><span class="expander" for="um_profile_${user.username}" title="Expand Profile">${user.username}</span></th>
-					<th py:for="cell_dict in sorted(users.cells, lambda x,y:x['order']-y['order'])" title="${cell_dict.label}">${cell_dict.render_method(cell_dict.name, user)}</th>
+					<th py:for="cell_dict in sorted(users.cells, lambda x,y:x['order']-y['order'])" title="${cell_dict.label}">
+					  <py:choose>
+					    <py:when test="cell_dict.label=='Email'">
+					      <a href="mailto:${cell_dict.render_method(cell_dict.name, user)}">${cell_dict.render_method(cell_dict.name, user)}</a>
+					    </py:when>
+					    <py:otherwise>
+					      ${cell_dict.render_method(cell_dict.name, user)}
+					    </py:otherwise>
+					  </py:choose>
+					</th>
 
 				</tr>
 				<tr>

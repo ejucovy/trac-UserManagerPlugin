@@ -86,7 +86,7 @@ Usage:
         else:
             data['user_profiles'] = UserManager(env).get_active_users()
         
-        data['cells'] = list(self._get_cells(data['user_profiles']))
+        data['cells'] = list(self._get_cells(req, data['user_profiles']))
         
         # add stylesheet&script
         add_script(req, 'tracusermanager/js/macros_um_profile.js')
@@ -105,9 +105,11 @@ Usage:
 
         return rendered_result
     
-    def _get_cells(self, user_list):
+    def _get_cells(self, req, user_list):
         for provider in self.cells_providers:
             for cell, label, order in provider.get_userlistmacro_cells():
+                if label == 'Email':
+                    cell = Chrome.format_author(req, cell)
                 yield dict(name=cell, label=label, order=order,
                            render_method = provider.render_userlistmacro_cell)
 
