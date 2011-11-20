@@ -1,58 +1,78 @@
 <html xmlns:py="http://genshi.edgewall.org/" py:strip="">
-    <div class="um_profile_macro">
-		<table class="listing">
-			<thead>
-				<tr>
-					<th width="1%"></th>
-					<th>User</th>
-					<th py:for="cell_dict in sorted(users.cells, lambda x,y:x['order']-y['order'])">${cell_dict.label}</th>
-				</tr>
-			</thead>
-			<tbody>
-			<py:for each="user in sorted(users.user_profiles, lambda x,y:x.username>y.username and 1 or -1)">
-				<tr>
-					<th rowspan="2"><img src="${href.chrome('tracusermanager')+'/img/user.png'}" /></th>
-					<th><span class="expander" for="um_profile_${user.username}" title="Expand Profile">${user.username}</span></th>
-					<th py:for="cell_dict in sorted(users.cells, lambda x,y:x['order']-y['order'])" title="${cell_dict.label}">
-					  <py:choose>
-					    <py:when test="cell_dict.label=='Email'">
-					      <a href="mailto:${cell_dict.render_method(cell_dict.name, user)}">${cell_dict.render_method(cell_dict.name, user)}</a>
-					    </py:when>
-					    <py:otherwise>
-					      ${cell_dict.render_method(cell_dict.name, user)}
-					    </py:otherwise>
-					  </py:choose>
-					</th>
-
-				</tr>
-				<tr>
-					<td colspan="${len(users.cells)+1}" >
-						<div class="um_profile" name="um_profile_${user.username}" style="display:none">
-							<div py:choose="" class="um_profile_picture">
-								<img py:when="user.picture_href" src="${user.picture_href}"/>
-								<img py:otherwise="" src="${href.chrome('tracusermanager')}/img/no_picture.png"/>
-							</div>
-							<div class="um_profile_field" py:for="field, attributes in sorted(users.user_profile_fields.items(), lambda x,y:x[1]['order']-y[1]['order'])">
-								<label>${attributes.label}:</label>
-								<py:choose>	
-									<span py:when="attributes.type=='wikitext'">${users.wiki_to_html(user[field])}</span>
-									<span py:when="attributes.type=='multichecks'">${user[field] and str(user[field]).replace('|',',') or _('[Blank]')}</span>
-									<span py:otherwise="">${user[field] or _('[Blank]')}</span>
-								</py:choose>
-							</div>
-						</div>
-					</td>
-				</tr>
-			</py:for>
-			<tr py:if="len(users.user_profiles)==0">
-				<td colspan="${len(users.cells)+2}" align="center">( Empty )</td>
-			</tr>
-		</tbody>
-		<tfoot>
-			<tr>
-				<th colspan="${len(users.cells)+2}">Members count: ${len(users.user_profiles)}</th>
-			</tr>
-		</tfoot>
-		</table>
-	</div>
+  <div class="um_profile_macro">
+    <table class="listing">
+      <thead>
+        <tr>
+          <th width="1%"></th>
+          <th>User</th>
+          <th py:for="cell_dict in sorted(users.cells, lambda x,y:x['order']-y['order'])">
+            ${cell_dict.label}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <py:for each="user in sorted(users.user_profiles, lambda x,y:x.username>y.username and 1 or -1)">
+          <tr>
+            <th rowspan="2">
+              <img src="${href.chrome('tracusermanager')+'/img/user.png'}" />
+            </th>
+            <th>
+              <span class="expander" for="um_profile_${user.username}"
+                    title="Expand Profile">
+                ${user.username}
+              </span>
+            </th>
+            <th py:for="cell_dict in sorted(users.cells, lambda x,y:x['order']-y['order'])" title="${cell_dict.label}">
+              <py:choose>
+                <py:when test="cell_dict.label == 'Email'">
+                  <a href="mailto:${cell_dict.render_method(cell_dict.name, user)}">
+                    ${cell_dict.render_method(cell_dict.name, user)}
+                  </a>
+                </py:when>
+                <py:otherwise>
+                  ${cell_dict.render_method(cell_dict.name, user)}
+                </py:otherwise>
+              </py:choose>
+            </th>
+          </tr>
+          <tr>
+            <td colspan="${len(users.cells)+1}" >
+              <div class="um_profile" name="um_profile_${user.username}"
+                   style="display:none">
+                <div py:choose="" class="um_profile_picture">
+                  <img py:when="user.picture_href" src="${user.picture_href}"/>
+                  <img py:otherwise=""
+                       src="${href.chrome('tracusermanager')}/img/no_picture.png"/>
+                </div>
+                <div class="um_profile_field"
+                     py:for="field, attributes in sorted(users.user_profile_fields.items(), lambda x,y:x[1]['order']-y[1]['order'])">
+                  <label>${attributes.label}:</label>
+                  <py:choose>
+                    <span py:when="attributes.type=='wikitext'">
+                      ${users.wiki_to_html(user[field])}
+                    </span>
+                    <span py:when="attributes.type=='multichecks'">
+                      ${user[field] and str(user[field]).replace('|',',') or _('[Blank]')}
+                    </span>
+                    <span py:otherwise="">
+                      ${user[field] or _('[Blank]')}
+                    </span>
+                  </py:choose>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </py:for>
+        <tr py:if="len(users.user_profiles) == 0">
+          <td colspan="${len(users.cells) + 2}" align="center">( Empty )</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="${len(users.cells)+2}">
+            Members count: ${len(users.user_profiles)}
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
 </html>
