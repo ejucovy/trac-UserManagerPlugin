@@ -4,10 +4,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
+    <xi:include href="prefs.html" />
     <py:match path="form[@id='userprefs']">
 		<form py:attrs="select('@*')" enctype="multipart/form-data">${select("*|text()")}</form>
     </py:match>
-	<xi:include href="prefs.html" />
  	<head>
    		<title>${_('My Profile')}</title>
 	</head>
