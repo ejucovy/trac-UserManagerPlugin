@@ -109,7 +109,7 @@ Usage:
         for provider in self.cells_providers:
             for cell, label, order in provider.get_userlistmacro_cells():
                 if label == 'Email':
-                    cell = Chrome.format_author(req, cell)
+                    cell = Chrome(self.env).format_author(req, cell)
                 yield dict(name=cell, label=label, order=order,
                            render_method = provider.render_userlistmacro_cell)
 
